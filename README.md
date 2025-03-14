@@ -75,8 +75,7 @@ npm run dev  # Runs on http://localhost:5173
 4. **Performance**
    - Implement message pagination
    - Add message lazy loading
-   - Set up connection pooling for database
-   - Enable message caching
+
 
 5. **Security**
    - Implement input sanitization
