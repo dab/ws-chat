@@ -34,21 +34,15 @@ app.get("/api/messages", (req, res) => {
 app.use((req, res) => res.status(404).send("Not found"));
 
 wss.on("connection", (ws) => {
-    console.log("User connected");
-
     ws.on("message", (message) => {
         const data = JSON.parse(message);
-        console.log(data)
 
         if (data.type === "new_user") {
             ws.username = data.name;
-            console.log(`User connected: ${data.name}`);
-            // Broadcast updated user list when new user connects
             const connectedUsers = Array.from(wss.clients)
                 .map(client => client.username)
                 .filter(Boolean);
 
-            console.log(connectedUsers);
             wss.clients.forEach((client) => {
                 client.send(JSON.stringify({
                     type: "users_list",
@@ -57,12 +51,8 @@ wss.on("connection", (ws) => {
             });
         }
 
-        // Handle chat message
         if (data.message) {
-            console.log(`User ${data.name}: ${data.message}`);
             const timestamp = new Date();
-
-
             db.run("INSERT INTO messages (name, message, timestamp) VALUES (?, ?, ?)",
                 [data.name, data.message, timestamp],
                 (error) => {
@@ -70,14 +60,10 @@ wss.on("connection", (ws) => {
                         console.error("Error saving message:", error);
                         return;
                     }
-                    console.log("Message saved");
                     data.type = "new_message";
-
                     wss.clients.forEach((client) => {
                         client.send(JSON.stringify({
-
                             data
-
                         }));
                     });
                 }
@@ -86,8 +72,6 @@ wss.on("connection", (ws) => {
     });
 
     ws.on("close", () => {
-        console.log("User disconnected");
-        // Broadcast updated user list when user disconnects
         const connectedUsers = Array.from(wss.clients)
             .map(client => client.username)
             .filter(Boolean);
@@ -102,7 +86,7 @@ wss.on("connection", (ws) => {
 });
 
 wss.on("error", (error) => {
-    console.log(error);
+    console.error(error);
 });
 
 server.listen(HTTP_PORT, () => {

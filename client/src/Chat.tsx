@@ -28,7 +28,6 @@ export const ChatLayout = ({ messages = [], name, socket, userList, user }: Chat
                 message,
                 timestamp: Date.now()
             }));
-            console.log('Sent message:', message);
         } else {
             console.error('WebSocket is not connected')
         }
