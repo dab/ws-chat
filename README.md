@@ -52,7 +52,7 @@ cd client
 npm run dev  # Runs on http://localhost:5173
 ```
 
-## Known Issues and Edge Cases Not Handled Yet
+## Known Issues and Edge Cases Not Handled Yet. Plan for future iterations.
 
 1. **Connection Management**
    - No automatic reconnection on connection loss
@@ -84,45 +84,3 @@ npm run dev  # Runs on http://localhost:5173
    - No message encryption
    - No XSS protection
 
-## Database Schema
-
-```sql
-CREATE TABLE messages (
-    id INTEGER PRIMARY KEY AUTOINCREMENT,
-    name TEXT,
-    message TEXT,
-    timestamp DATETIME
-)
-```
-
-## Environment Variables
-
-The application uses these default values which can be overridden:
-
-```env
-PORT=3000                    # Backend server port
-VITE_WS_URL=ws://localhost:3000  # WebSocket server URL
-```
-
-## Project Structure
-
-```
-ws-chat/
-├── client/                # Frontend React application
-│   ├── src/
-│   │   ├── App.tsx       # Main application component
-│   │   ├── Chat.tsx      # Chat component
-│   │   └── UserList.tsx  # Online users component
-│   └── package.json
-├── db.js                 # Database configuration
-├── index.js             # Backend server
-└── package.json
-```
-
-## Contributing
-
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/amazing-feature`)
-3. Commit your changes (`git commit -m 'Add some amazing feature'`)
-4. Push to the branch (`git push origin feature/amazing-feature`)
-5. Open a Pull Request
