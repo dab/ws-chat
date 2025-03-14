@@ -28,7 +28,7 @@ A real-time chat application built with WebSocket protocol, featuring user prese
 
 1. Clone the repository:
 ```bash
-git clone <repository-url>
+git clone https://github.com/dab/ws-chat.git
 cd ws-chat
 ```
 
@@ -45,6 +45,7 @@ npm install
 3. Start the development servers:
 ```bash
 # Terminal 1 - Start backend server
+cd server
 npm run dev  # Runs on http://localhost:3000
 
 # Terminal 2 - Start frontend development server

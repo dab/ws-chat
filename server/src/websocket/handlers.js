@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const db = require("../../db/db");
+const db = require("../db/");
 
 const handleNewUser = (wss, ws, data) => {
     ws.username = data.name;

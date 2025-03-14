@@ -4,8 +4,8 @@
   "description": "real-time websocket chat",
   "main": "index.js",
   "scripts": {
-    "start": "node server/src/index.js",
-    "dev": "nodemon server/src/index.js",
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "",
