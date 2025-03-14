@@ -7,7 +7,7 @@ const handleNewUser = (wss, ws, data) => {
 };
 
 const handleChatMessage = (wss, data) => {
-    const timestamp = new Date();
+    const timestamp = new Date().getTime();
     db.run(
         "INSERT INTO messages (name, message, timestamp) VALUES (?, ?, ?)",
         [data.name, data.message, timestamp],
@@ -16,7 +16,14 @@ const handleChatMessage = (wss, data) => {
                 console.error("Error saving message:", error);
                 return;
             }
-            broadcastMessage(wss, { ...data, type: "new_message" });
+            broadcast(wss, {
+                type: "new_message",
+                data: {
+                    name: data.name,
+                    message: data.message,
+                    timestamp
+                }
+            });
         }
     );
 };

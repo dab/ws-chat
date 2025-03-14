@@ -1,6 +1,9 @@
 const sqlite = require("sqlite3").verbose();
+const path = require('path');
 
-const db = new sqlite.Database("./db.sqlite");
+const dbPath = path.join(__dirname, 'chat.db');
+
+const db = new sqlite.Database(dbPath);
 
 db.run("CREATE TABLE IF NOT EXISTS messages (id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, message TEXT, timestamp DATETIME)");
 db.get("SELECT COUNT(*) as count FROM messages", (err, row) => {

@@ -1,16 +1,14 @@
-import { useEffect, useRef } from "react"
-import { Message } from "./App"
+import { FC, useEffect, useRef } from "react"
+import { ChatLayoutProps } from "./types"
 import { UserList } from "./UserList"
 
-type ChatLayoutProps = {
-    messages?: Message[];
-    name?: string;
-    userList: string[] | [];
-    socket: WebSocket;
-    user: string;
-};
-
-export const ChatLayout = ({ messages = [], name, socket, userList, user }: ChatLayoutProps) => {
+export const ChatLayout: FC<ChatLayoutProps> = ({ 
+    messages = [], 
+    name, 
+    sendMessage, 
+    userList, 
+    user 
+}) => {
     const chatEndRef = useRef<null | HTMLDivElement>(null)
 
     useEffect(() => {
@@ -22,14 +20,10 @@ export const ChatLayout = ({ messages = [], name, socket, userList, user }: Chat
     }
 
     const onSubmit = (message: string) => {
-        if (socket?.readyState === WebSocket.OPEN) {
-            socket.send(JSON.stringify({
-                name: name,
-                message,
-                timestamp: Date.now()
-            }));
+        if (sendMessage) {
+            sendMessage(message);
         } else {
-            console.error('WebSocket is not connected')
+            console.error('sendMessage function is not provided')
         }
     };
     
