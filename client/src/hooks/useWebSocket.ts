@@ -60,6 +60,7 @@ export const useWebSocket = (url: string, username?: string): WebSocketHookResul
         }
 
         ws.current.send(JSON.stringify({
+            type: 'new_message', // Add message type
             name: username,
             message,
             timestamp: Date.now()
