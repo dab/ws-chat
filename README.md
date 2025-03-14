@@ -52,35 +52,35 @@ cd client
 npm run dev  # Runs on http://localhost:5173
 ```
 
-## Known Issues and Edge Cases Not Handled Yet. Plan for future iterations.
+## Plan for future development iterations.
 
 1. **Connection Management**
-   - No automatic reconnection on connection loss
-   - No handling of message delivery confirmation
-   - No offline message queue
+   - Implement automatic reconnection on connection loss
+   - Add message delivery confirmation
+   - Create offline message queue
 
 2. **User Management**
-   - No user authentication
-   - No duplicate username prevention
-   - No user typing indicators
-   - No user status (away, busy, etc.)
+   - Implement user authentication
+   - Add duplicate username prevention
+   - Enable user typing indicators
+   - Add user status features (away, busy, etc.)
 
 3. **Message Handling**
-   - No message editing or deletion
-   - No file attachments support
-   - No message formatting (markdown, etc.)
-   - No message delivery status
-   - No read receipts
+   - Add message editing and deletion
+   - Implement file attachments support
+   - Enable message formatting (markdown, etc.)
+   - Add message delivery status
+   - Implement read receipts
 
 4. **Performance**
-   - No message pagination
-   - No message lazy loading
-   - No connection pooling for database
-   - No message caching
+   - Implement message pagination
+   - Add message lazy loading
+   - Set up connection pooling for database
+   - Enable message caching
 
 5. **Security**
-   - No input sanitization
-   - No rate limiting
-   - No message encryption
-   - No XSS protection
+   - Implement input sanitization
+   - Add rate limiting
+   - Enable message encryption
+   - Implement XSS protection
 
