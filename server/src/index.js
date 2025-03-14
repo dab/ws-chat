@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const setupWebSocket = require("./websocket");
-const db = require("./db");
+const db = require("../db/db");
 
 const createServer = () => {
     const app = express();

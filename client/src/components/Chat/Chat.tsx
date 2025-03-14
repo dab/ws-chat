@@ -1,6 +1,6 @@
 import { FC, useEffect, useRef } from "react"
-import { ChatLayoutProps } from "./types"
-import { UserList } from "./UserList"
+import { ChatLayoutProps } from "../../types"
+import { UserList } from "../UserList/UserList"
 
 export const ChatLayout: FC<ChatLayoutProps> = ({ 
     messages = [], 
