@@ -1,0 +1,41 @@
+@import "tailwindcss"; 
+
+#root {
+  @apply flex flex-col md:flex-row min-h-screen;
+}
+
+.chat-layout {
+  @apply flex flex-col bg-gray-100 max-h-screen min-w-4/5 min-h-3/5;
+}
+
+.chat-messages {
+  @apply  overflow-y-scroll min-h-3/5 md:min-h-4/5 border-2 border-solid border-white bg-gray-200;
+}
+
+.chat-message {
+    @apply bg-gray-100 text-gray-800 py-2 px-4 rounded m-1;    
+}
+
+.chat-message.self {
+  @apply bg-white text-blue-800;
+}
+
+.user-list {
+  @apply min-h-1/5 md:min-w-1/5 py-2 px-4 bg-gray-200 border-t-2 border-solid border-white pb-16;
+}
+
+.chat-input{
+  @apply md:min-h-1/5 bg-gray-200;
+}
+
+.chat-input textarea {
+  @apply border border-gray-300 rounded-md p-2 bg-white w-full;
+}
+
+.chat-input form {
+  @apply flex flex-col m-1  py-2 px-4;
+}
+
+.chat-input label {
+  @apply text-sm text-gray-600 py-2;
+}
