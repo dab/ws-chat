@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 import { ChatLayout } from '../Chat/Chat'
 import { useWebSocket } from '../../hooks/useWebSocket'
-import { Message, Username } from './types'
+import { Message, Username } from '../../types'
 import './App.css'
 
 const WS_SERVER = 'ws://localhost:3000'

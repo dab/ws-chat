@@ -1,7 +1,7 @@
 const express = require("express");
 const cors = require("cors");
 const setupWebSocket = require("./websocket");
-const db = require("./db/");
+const db = require("./db");
 
 const createServer = () => {
     const app = express();
@@ -12,8 +12,10 @@ const createServer = () => {
 };
 
 const setupMiddleware = (app) => {
+    const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
+
     app.use(cors({
-        origin: 'http://localhost:5173',
+        origin: CORS_ORIGIN,
         methods: ['GET'],
         credentials: true
     }));

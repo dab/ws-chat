@@ -1,5 +1,5 @@
 import { FC, useEffect, useRef } from "react"
-import { ChatLayoutProps } from "../../types"
+import { Message, ChatLayoutProps } from "../../types"
 import { UserList } from "../UserList/UserList"
 
 export const ChatLayout: FC<ChatLayoutProps> = ({ 
@@ -31,7 +31,7 @@ export const ChatLayout: FC<ChatLayoutProps> = ({
         <>
             <div className="chat-layout">
                 <div className="chat-messages">
-                    {messages?.map((msg) => msg && (
+                    {messages?.map((msg: Message) => msg && (
                         <div 
                             key={msg.timestamp} 
                             className={`chat-message ${msg.name === name ? 'self' : ''}`}

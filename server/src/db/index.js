@@ -1,7 +1,7 @@
 const sqlite = require("sqlite3").verbose();
 const path = require('path');
 
-const dbPath = path.join(__dirname, 'chat.db');
+const dbPath = path.join(__dirname, process.env.DB_PATH || 'chat.db');
 
 const db = new sqlite.Database(dbPath);
 

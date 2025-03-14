@@ -19,7 +19,7 @@ export const createWebSocket = (url: string, username: string): Promise<WebSocke
         state.ws = ws;
 
         ws.onopen = () => {
-            sendMessage(state, { type: 'new_user', name: username });
+            sendMessage(state, { type: 'new_user', name: username } as WebSocketMessage);
             resolve(state);
         };
 
