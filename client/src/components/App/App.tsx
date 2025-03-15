@@ -1,60 +1,59 @@
-import { useEffect, useRef, useState } from 'react'
-import { ChatLayout } from '../Chat/Chat'
-import { useWebSocket } from '../../hooks/useWebSocket'
-import { Message, Username } from '../../types'
-import './App.css'
+import { useEffect, useState, useRef } from 'react';
+import { ChatLayout } from '../Chat/Chat';
+import { useWebSocket } from '../../hooks/useWebSocket';
+import { Message } from '../../types/websocket';
+import './App.css';
 
-const WS_SERVER = 'ws://localhost:3000'
-const API_SERVER = 'http://localhost:3000'
+const WS_URL = 'ws://localhost:3000';
+const API_URL = 'http://localhost:3000';
 
-function App() {
-  const [username, setUsername] = useState<Username>()
-  const [chatLog, setChatLog] = useState<Message[]>([])
-  const promptShown = useRef(false)
+export default function App() {
+    const [username, setUsername] = useState<string>();
+    const [history, setHistory] = useState<Message[]>([]);
+    const hasPrompted = useRef(false);
+    
+    const { 
+        state, 
+        messages, 
+        userList, 
+        sendMessage 
+    } = useWebSocket(WS_URL, username);
 
-  const { 
-    isConnected, 
-    messages: wsMessages, 
-    userList, 
-    sendMessage 
-  } = useWebSocket(WS_SERVER, username)
-
-  // Handle initial username prompt
-  useEffect(() => {
-    if (!username && !promptShown.current) {
-      promptShown.current = true
-      const usernamePrompt = prompt('Enter your username:') as Username
-      setUsername(usernamePrompt)
-    }
-  }, [])
-
-  // Fetch message history
-  useEffect(() => {
-    fetch(API_SERVER + '/api/messages')
-      .then(response => response.json())
-      .then(data => {
-        if (Array.isArray(data)) {
-          setChatLog(data)
+    useEffect(() => {
+        if (!username && !hasPrompted.current) {
+            hasPrompted.current = true;
+            const name = prompt('Enter your username:');
+            if (name?.trim()) {
+                setUsername(name.trim());
+            }
         }
-      })
-      .catch(error => console.error('Error fetching messages:', error))
-  }, [])
+    }, []); // Empty dependency array - runs only once
 
-  return (
-    <>
-      {isConnected && username ? (
-        <ChatLayout 
-          messages={chatLog.concat(wsMessages)} 
-          name={username}
-          sendMessage={sendMessage}
-          userList={userList}
-          user={username}
+    useEffect(() => {
+        fetch(`${API_URL}/api/messages`)
+            .then(res => res.json())
+            .then(data => Array.isArray(data) && setHistory(data))
+            .catch(console.error);
+    }, []);
+
+    if (!username) {
+        return <div>Waiting for username...</div>;
+    }
+
+    if (state.status === 'error') {
+        return <div>Error: {state.error?.message}</div>;
+    }
+
+    if (state.status !== 'connected') {
+        return <div>Connecting to chat server...</div>;
+    }
+
+    return (
+        <ChatLayout
+            messages={[...history, ...messages]}
+            username={username}
+            userList={userList}
+            onSendMessage={sendMessage}
         />
-      ) : (
-        <div>Connecting to server...</div>
-      )}
-    </>
-  )
+    );
 }
-
-export default App
