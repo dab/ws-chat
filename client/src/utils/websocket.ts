@@ -1,4 +1,4 @@
-import { Message, WebSocketMessage } from '../types';
+import { Message, WebSocketMessage } from '../types/websocket';
 
 type MessageHandler = (message: WebSocketMessage) => void;
 type WebSocketState = {

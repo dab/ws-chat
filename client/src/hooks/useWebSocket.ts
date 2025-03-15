@@ -13,7 +13,9 @@ export const useWebSocket = (url: string, username?: string) => {
                 if (message.users) setUserList(message.users);
                 break;
             case 'new_message':
-                if (message.data) setMessages(prev => [...prev, message.data]);
+                if (message.data && 'name' in message.data) {
+                    setMessages(prev => [...prev, message.data as Message]);
+                }
                 break;
             case 'error':
                 setState({ status: 'error', error: new Error(message.message) });

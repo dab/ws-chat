@@ -1,5 +1,5 @@
 import { FC } from "react";
-import { Message } from '../../types';
+import { Message } from '../../types/websocket';
 import { UserList } from "../UserList/UserList";
 import { MessageList } from "./MessageList";
 import { MessageInput } from "./MessageInput";
