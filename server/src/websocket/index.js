@@ -1,34 +1,42 @@
-const WebSocket = require("ws");
-const { handleNewUser, handleChatMessage, broadcastUserList } = require("./handlers");
+import { WebSocketServer } from "ws";
+import { messageHandler } from "./handlers.js";
 
-const setupWebSocket = (server) => {
-    const wss = new WebSocket.Server({ server });
+export const setupWebSocket = (server) => {
+    const wss = new WebSocketServer({ server });
 
-    const handleMessage = (ws) => (message) => {
-        try {
-            const data = JSON.parse(message);
-            
-            if (data.type === "new_user") {
-                handleNewUser(wss, ws, data);
+    wss.on("connection", (ws) => {
+        ws.isAlive = true;
+
+        ws.on("pong", () => {
+            ws.isAlive = true;
+        });
+
+        ws.on("message", (data) => {
+            try {
+                const message = JSON.parse(data);
+                messageHandler(wss, ws, message);
+            } catch (error) {
+                console.error("WebSocket message error:", error);
+                ws.send(JSON.stringify({
+                    type: "error",
+                    message: "Invalid message format"
+                }));
             }
-            
-            if (data.message) {
-                handleChatMessage(wss, data);
-            }
-        } catch (error) {
-            console.error("Error handling message:", error);
-        }
-    };
+        });
+    });
 
-    const handleConnection = (ws) => {
-        ws.on("message", handleMessage(ws));
-        ws.on("close", () => broadcastUserList(wss));
-        ws.on("error", (error) => console.error("WebSocket error:", error));
-    };
+    // Connection health check
+    const interval = setInterval(() => {
+        wss.clients.forEach((ws) => {
+            if (!ws.isAlive) return ws.terminate();
+            ws.isAlive = false;
+            ws.ping();
+        });
+    }, 30000);
 
-    wss.on("connection", handleConnection);
+    wss.on("close", () => {
+        clearInterval(interval);
+    });
 
     return wss;
 };
-
-module.exports = setupWebSocket;

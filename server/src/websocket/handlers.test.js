@@ -1,110 +1,109 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest'
-import { WebSocket } from 'ws'
-import { handleNewUser, handleChatMessage, broadcastUserList } from './handlers.js'
-import db from '@/db'
+import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { WebSocket } from 'ws';
+import { messageHandler } from './handlers.js';
+import { saveMessage } from '../db/queries.js';
+
+vi.mock('../db/queries.js', () => ({
+    saveMessage: vi.fn()
+}));
 
 describe('WebSocket Handlers', () => {
-    let wss
-    let mockWs
-    let mockClients
+    let wss, mockWs;
 
     beforeEach(() => {
-        vi.clearAllMocks()
-
-        // Setup WebSocket mocks
-        mockClients = new Set()
+        vi.clearAllMocks();
         mockWs = {
             send: vi.fn(),
             readyState: WebSocket.OPEN
-        }
+        };
         wss = {
-            clients: mockClients
-        }
-        mockClients.add(mockWs)
+            clients: new Set([mockWs])
+        };
+    });
 
-        // Reset database mock
-        vi.mocked(db.run).mockImplementation((query, params, callback) => {
-            if (callback) callback(null)
-        })
-    })
-
-    describe('handleNewUser', () => {
-        it('should set username and broadcast user list', () => {
-            const data = { name: 'testUser' }
-            handleNewUser(wss, mockWs, data)
+    describe('new_user handler', () => {
+        it('should set username and broadcast user list', async () => {
+            const message = { type: 'new_user', name: 'testUser' };
+            await messageHandler(wss, mockWs, message);
             
-            expect(mockWs.username).toBe('testUser')
+            expect(mockWs.username).toBe('testUser');
             expect(mockWs.send).toHaveBeenCalledWith(
                 expect.stringContaining('"type":"users_list"')
-            )
-        })
-    })
+            );
+        });
 
-    describe('handleChatMessage', () => {
-        it('should broadcast message to all clients', (done) => {
+        it('should throw error if username is missing', async () => {
+            const message = { type: 'new_user' };
+            await messageHandler(wss, mockWs, message);
+            
+            expect(mockWs.send).toHaveBeenCalledWith(
+                expect.stringContaining('"message":"Username is required"')
+            );
+        });
+    });
+
+    describe('new_message handler', () => {
+        it('should save and broadcast message', async () => {
             const message = {
+                type: 'new_message',
                 name: 'testUser',
                 message: 'test message'
-            }
+            };
             
-            // Override db.run mock for this test
-            vi.mocked(db.run).mockImplementation((query, params, callback) => {
-                // Execute callback asynchronously to simulate DB operation
-                setTimeout(() => {
-                    callback(null)
-                    
-                    try {
-                        expect(mockWs.send).toHaveBeenCalledWith(
-                            expect.stringContaining('test message')
-                        )
-                        done()
-                    } catch (error) {
-                        done(error)
-                    }
-                }, 0)
-            })
+            await messageHandler(wss, mockWs, message);
+            
+            expect(saveMessage).toHaveBeenCalledWith(
+                'testUser',
+                'test message',
+                expect.any(Number)
+            );
+            expect(mockWs.send).toHaveBeenCalledWith(
+                expect.stringContaining('"type":"new_message"')
+            );
+        });
 
-            handleChatMessage(wss, message)
-        })
-
-        it('should handle database errors', (done) => {
+        it('should handle unknown message type', async () => {
             const message = {
+                type: 'chat_message',  // Unknown type
                 name: 'testUser',
                 message: 'test message'
-            }
-
-            const error = new Error('DB Error')
+            };
             
-            vi.mocked(db.run).mockImplementation((query, params, callback) => {
-                setTimeout(() => {
-                    callback(error)
-                    
-                    try {
-                        expect(console.error).toHaveBeenCalledWith(
-                            'Error saving message:',
-                            error
-                        )
-                        expect(mockWs.send).not.toHaveBeenCalled()
-                        done()
-                    } catch (err) {
-                        done(err)
-                    }
-                }, 0)
-            })
-
-            handleChatMessage(wss, message)
-        })
-    })
-
-    describe('broadcastUserList', () => {
-        it('should send user list to all clients', () => {
-            mockWs.username = 'testUser'
+            await messageHandler(wss, mockWs, message);
             
-            broadcastUserList(wss)
+            expect(saveMessage).not.toHaveBeenCalled();
+            expect(mockWs.send).toHaveBeenCalledWith(
+                expect.stringContaining('Unknown message type: chat_message')
+            );
+        });
+
+        it('should handle database errors', async () => {
+            saveMessage.mockRejectedValueOnce(new Error('DB Error'));
+            
+            const message = {
+                type: 'new_message',
+                name: 'testUser',
+                message: 'test message'
+            };
+
+            await messageHandler(wss, mockWs, message);
+            
+            expect(mockWs.send).toHaveBeenCalledWith(
+                expect.stringContaining('"type":"error"')
+            );
+        });
+    });
+
+    describe('request_user_list handler', () => {
+        it('should send user list to requesting client', async () => {
+            mockWs.username = 'testUser';
+            const message = { type: 'request_user_list' };
+            
+            await messageHandler(wss, mockWs, message);
             
             expect(mockWs.send).toHaveBeenCalledWith(
                 expect.stringContaining('"type":"users_list"')
-            )
-        })
-    })
-})
+            );
+        });
+    });
+});

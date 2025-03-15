@@ -1,54 +1,38 @@
-const express = require("express");
-const cors = require("cors");
-const setupWebSocket = require("./websocket");
-const db = require("./db");
+import express from "express";
+import cors from "cors";
+import { createServer } from "http";
+import { setupWebSocket } from "./websocket/index.js";
+import { connectToDatabase } from "./db/index.js";
+import { setupRoutes } from "./routes/index.js";
+import { errorHandler } from "./middleware/errorHandler.js";
 
-const createServer = () => {
-    const app = express();
-    const server = require('http').createServer(app);
-    const wss = setupWebSocket(server);
+const app = express();
+const server = createServer(app);
+const PORT = process.env.PORT || 3000;
 
-    return { app, server, wss };
-};
+// Middleware
+app.use(cors({ origin: process.env.CORS_ORIGIN || 'http://localhost:5173' }));
+app.use(express.json());
 
-const setupMiddleware = (app) => {
-    const CORS_ORIGIN = process.env.CORS_ORIGIN || 'http://localhost:5173';
+// Routes
+setupRoutes(app);
 
-    app.use(cors({
-        origin: CORS_ORIGIN,
-        methods: ['GET'],
-        credentials: true
-    }));
-    app.use(express.json());
-};
+// Error handling
+app.use(errorHandler);
 
-const setupRoutes = (app) => {
-    app.get("/api/messages", (req, res) => {
-        db.all("SELECT * FROM messages ORDER BY timestamp ASC", (error, messages) => {
-            if (error) {
-                return res.status(500).json({ error: error.message });
-            }
-
-            res.json(messages);
+// Start server
+const startServer = async () => {
+    try {
+        await connectToDatabase();
+        setupWebSocket(server);
+        
+        server.listen(PORT, () => {
+            console.log(`Server running on port ${PORT}`);
         });
-    });
-
-    app.use((req, res) => res.status(404).send("Not found"));
+    } catch (error) {
+        console.error("Failed to start server:", error);
+        process.exit(1);
+    }
 };
 
-const startServer = (server, port) => {
-    server.listen(port, () => {
-        console.log(`Server is running on port ${port}`);
-    });
-};
-
-const main = () => {
-    const HTTP_PORT = process.env.PORT || 3000;
-    const { app, server } = createServer();
-    
-    setupMiddleware(app);
-    setupRoutes(app);
-    startServer(server, HTTP_PORT);
-};
-
-main();
+startServer();

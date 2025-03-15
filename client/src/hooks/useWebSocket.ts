@@ -62,7 +62,8 @@ export const useWebSocket = (url: string, username?: string): WebSocketHookResul
         ws.current.send(JSON.stringify({
             name: username,
             message,
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            type: 'new_message'
         }));
     }, [username]);
 
