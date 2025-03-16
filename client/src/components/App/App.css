@@ -24,6 +24,14 @@
   @apply min-h-1/5 md:min-w-1/5 py-2 px-4 bg-gray-200 border-t-2 border-solid border-white pb-16;
 }
 
+.user-list .self {
+  @apply text-blue-800;
+}
+
+.user-list ul {
+  @apply list-disc list-inside text-sm;
+}
+
 .chat-input{
   @apply md:min-h-1/5 bg-gray-200;
 }
