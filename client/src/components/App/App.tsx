@@ -27,8 +27,7 @@ export default function App() {
                 setUsername(name.trim());
             }
         }
-    }, []); // Empty dependency array - runs only once
-
+    }, []);
     useEffect(() => {
         fetch(`${API_URL}/api/messages`)
             .then(res => res.json())

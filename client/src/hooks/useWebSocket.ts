@@ -6,6 +6,24 @@ export const useWebSocket = (url: string, username?: string) => {
     const [messages, setMessages] = useState<Message[]>([]);
     const [userList, setUserList] = useState<string[]>([]);
     const wsRef = useRef<WebSocket | null>(null);
+    const isWindowFocused = useRef(true);
+
+    useEffect(() => {
+        const handleFocus = () => isWindowFocused.current = true;
+        const handleBlur = () => isWindowFocused.current = false;
+        
+        window.addEventListener('focus', handleFocus);
+        window.addEventListener('blur', handleBlur);
+        
+        if (Notification.permission === 'default') {
+            Notification.requestPermission();
+        }
+        
+        return () => {
+            window.removeEventListener('focus', handleFocus);
+            window.removeEventListener('blur', handleBlur);
+        };
+    }, []);
 
     const handleMessage = useCallback((message: WebSocketMessage) => {
         switch (message.type) {
@@ -15,13 +33,20 @@ export const useWebSocket = (url: string, username?: string) => {
             case 'new_message':
                 if (message.data && 'name' in message.data) {
                     setMessages(prev => [...prev, message.data as Message]);
+                    if (!isWindowFocused.current && 
+                        Notification.permission === 'granted' && 
+                        message.data.name !== username) {
+                        new Notification(`New message from ${message.data.name}`, {
+                            body: message.data.message
+                        });
+                    }
                 }
                 break;
             case 'error':
                 setState({ status: 'error', error: new Error(message.message) });
                 break;
         }
-    }, []);
+    }, [username]);
 
     const connect = useCallback(() => {
         if (!username) return;

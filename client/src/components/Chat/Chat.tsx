@@ -6,9 +6,9 @@ import { MessageInput } from "./MessageInput";
 
 interface ChatLayoutProps {
     messages: Message[];
-    username: string;  // changed from name
+    username: string;
     userList: string[];
-    onSendMessage: (message: string) => void;  // changed from sendMessage
+    onSendMessage: (message: string) => void;
 }
 
 export const ChatLayout: FC<ChatLayoutProps> = ({ 
