@@ -1,5 +1,6 @@
 import { WebSocketServer } from "ws";
-import { messageHandler } from "./handlers.js";
+import { messageHandler } from "./handlers/index.js";
+import { handleUserDisconnect } from "./handlers/userHandlers.js";
 
 export const setupWebSocket = (server) => {
     const wss = new WebSocketServer({ server });
@@ -23,12 +24,19 @@ export const setupWebSocket = (server) => {
                 }));
             }
         });
+
+        ws.on("close", () => {
+            handleUserDisconnect(wss, ws);
+        });
     });
 
     // Connection health check
     const interval = setInterval(() => {
         wss.clients.forEach((ws) => {
-            if (!ws.isAlive) return ws.terminate();
+            if (!ws.isAlive) {
+                handleUserDisconnect(wss, ws);
+                return ws.terminate();
+            }
             ws.isAlive = false;
             ws.ping();
         });
